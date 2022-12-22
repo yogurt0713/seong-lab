@@ -173,6 +173,19 @@
 			prevEasing : 'swing',
 			prevMethod : 'changeOut',
 
+			// Changing next project item
+			nextEffect : 'elastic', // 'elastic', 'fade' or 'none'
+			nextSpeed  : 250,
+			nextEasing : 'swing',
+			nextMethod : 'changeIn',
+			
+			// Changing previous project item
+			prevEffect : 'elastic', // 'elastic', 'fade' or 'none'
+			prevSpeed  : 250,
+			prevEasing : 'swing',
+			prevMethod : 'changeOut',
+
+
 			// Enable default helpers
 			helpers : {
 				overlay : true,
@@ -496,6 +509,60 @@
 		},
 
 		// Navigate to gallery item by index
+		jumpto: function ( index, direction, router ) {
+			var current = F.current;
+
+			if (!current) {
+				return;
+			}
+
+			index = getScalar(index);
+
+			F.direction = direction || current.direction[ (index >= current.index ? 'next' : 'prev') ];
+			F.router    = router || 'jumpto';
+
+			if (current.loop) {
+				if (index < 0) {
+					index = current.group.length + (index % current.group.length);
+				}
+
+				index = index % current.group.length;
+			}
+
+			if (current.group[ index ] !== undefined) {
+				F.cancel();
+
+				F._start(index);
+			}
+		},
+
+		// Navigate to next project item
+		next: function ( direction ) {
+			var current = F.current;
+
+			if (current) {
+				if (!isString(direction)) {
+					direction = current.direction.next;
+				}
+
+				F.jumpto(current.index + 1, direction, 'next');
+			}
+		},
+
+		// Navigate to previous project item
+		prev: function ( direction ) {
+			var current = F.current;
+
+			if (current) {
+				if (!isString(direction)) {
+					direction = current.direction.prev;
+				}
+
+				F.jumpto(current.index - 1, direction, 'prev');
+			}
+		},
+
+		// Navigate to project item by index
 		jumpto: function ( index, direction, router ) {
 			var current = F.current;
 
@@ -856,7 +923,7 @@
 			if (!type) {
 				F.coming = null;
 
-				//If we can not determine content type then drop silently or display next/prev item if looping through gallery
+				//If we can not determine content type then drop silently or display next/prev item if looping through gallery/project
 				if (F.current && F.router && F.router !== 'jumpto') {
 					F.current.index = index;
 
